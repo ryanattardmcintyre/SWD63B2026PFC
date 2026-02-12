@@ -1,0 +1,13 @@
+﻿@{
+    var returnUrl = (string?)ViewData["ReturnUrl"] ?? "/";
+}
+
+<h2>Sign in</h2>
+
+<form asp-controller="Account" asp-action="GoogleLogin" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+    <button type="submit" class="btn btn-primary">
+        Continue with Google
+    </button>
+</form>
