@@ -5,6 +5,14 @@ using WebApplication1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path.Combine(
+    builder.Environment.ContentRootPath,
+    "swd63bpfc2026-80ca4a71595c.json"
+));
+
+
+
+
 // Load Google JSON file
 var googleJsonPath = Path.Combine(
     builder.Environment.ContentRootPath,
@@ -36,6 +44,14 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<WebApplication1.Repositories.FirestoreRepository>(provider =>
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var projectId = config.GetValue<string>("ProjectId");
+    return new WebApplication1.Repositories.FirestoreRepository(projectId);
+});
+
 
 var app = builder.Build();
 

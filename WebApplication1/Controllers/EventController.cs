@@ -1,13 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class EventController : Controller
     {
-        public IActionResult Index()
+        private FirestoreRepository _firestoreRepository;
+        public EventController(FirestoreRepository firestoreRepository)
         {
-            return View();
+            _firestoreRepository = firestoreRepository;
+        }
+        public async Task<IActionResult> Index()
+        {
+            var list = await _firestoreRepository.GetAllEventsAsync();
+            return View(list);
         }
 
         [Authorize]
