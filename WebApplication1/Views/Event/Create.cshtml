@@ -1,0 +1,48 @@
+﻿@model WebApplication1.Models.FirestoreModels.Event
+
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<h2>Create Event</h2>
+
+<form asp-controller="Event" asp-action="Create" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DateTimeHappening" class="form-label">Date & time</label>
+        <input asp-for="DateTimeHappening" class="form-control" type="datetime-local" />
+        <span asp-validation-for="DateTimeHappening" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="OrganizerEmailAddress" class="form-label">Organizer email</label>
+        <input asp-for="OrganizerEmailAddress" class="form-control" />
+        <span asp-validation-for="OrganizerEmailAddress" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Poster (image)</label>
+        <input type="file" name="poster" class="form-control" accept="image/*" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Guest list (csv)</label>
+        <input type="file" name="guestList" class="form-control" accept=".csv,text/csv,.pdf,.txt" />
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-controller="Event" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

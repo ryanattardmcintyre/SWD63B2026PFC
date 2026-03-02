@@ -12,6 +12,13 @@ namespace WebApplication1.Repositories
             _firestoreDb = FirestoreDb.Create(projectId);
         }
 
+
+        public async Task AddEventAsync(Event e)
+        {
+            CollectionReference eventsCollection = _firestoreDb.Collection("events");
+            await eventsCollection.Document().SetAsync(e);
+        }
+
         //Add User
         public async Task AddUserAsync(User user)
         {

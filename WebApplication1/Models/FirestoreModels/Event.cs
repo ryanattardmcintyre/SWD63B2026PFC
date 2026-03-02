@@ -15,6 +15,13 @@ namespace WebApplication1.Models.FirestoreModels
         public string ImagePath { get; set; }
 
         [FirestoreProperty]
+        public string GuestListPath { get; set; }
+
+        [FirestoreProperty]
         public DateTime DateTimeHappening { get; set; }
+
+        [FirestoreProperty]
+        public string OrganizerEmailAddress { get; set; }
+
     }
 }

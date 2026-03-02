@@ -52,6 +52,15 @@ builder.Services.AddScoped<WebApplication1.Repositories.FirestoreRepository>(pro
     return new WebApplication1.Repositories.FirestoreRepository(projectId);
 });
 
+builder.Services.AddScoped<WebApplication1.Repositories.BucketRepository>(provider =>
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var projectId = config.GetValue<string>("ProjectId");
+    var posterBucketName = config.GetValue<string>("PosterBucket"); 
+
+    return new WebApplication1.Repositories.BucketRepository(projectId, posterBucketName);
+});
+
 
 var app = builder.Build();
 
