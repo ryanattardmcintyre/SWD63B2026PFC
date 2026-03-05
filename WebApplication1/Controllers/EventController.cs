@@ -9,9 +9,16 @@ namespace WebApplication1.Controllers
     public class EventController : Controller
     {
         private FirestoreRepository _firestoreRepository;
-        private BucketRepository _bucketRepository;
-        public EventController(FirestoreRepository firestoreRepository, BucketRepository bucketRepository)
-        {_bucketRepository  = bucketRepository;
+        private IBucketRepository _posterRepository;
+        private IBucketRepository _guestListRepository;
+        public EventController(FirestoreRepository firestoreRepository, 
+            [FromKeyedServices("uniform")] IBucketRepository posterRepository,
+            [FromKeyedServices("finegrained")] IBucketRepository guestListRepository
+            )
+        {
+            _posterRepository = posterRepository;
+            _guestListRepository = guestListRepository;
+
             _firestoreRepository = firestoreRepository;
         }
 
@@ -27,26 +34,25 @@ namespace WebApplication1.Controllers
             //this gives you a google compatible datetime =  Timestamp.FromDateTime(e.DateTimeHappening)
             e.DateTimeHappening = DateTime.SpecifyKind(e.DateTimeHappening, DateTimeKind.Utc);
 
-
+            //uploading the poster into the uniform bucket
             string uniqueFilename = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(poster.FileName);
-            Task<string> t =_bucketRepository.UploadFileAsync(poster, uniqueFilename);
+            Task<string> t =_posterRepository.UploadFileAsync(poster, uniqueFilename);
             t.Wait();
             string pathToPoster = t.Result;
             if (!string.IsNullOrEmpty(pathToPoster))
             {   e.ImagePath = pathToPoster; 
             }
 
+            //uploading the guestlist into the fine grained bucket
             string uniqueGuestListFilename = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(guestList.FileName);
             //change the bucket using KeyedScoped in program.cs
-            Task<string> t2 = _bucketRepository.UploadFileAsync(guestList, uniqueGuestListFilename);
+            Task<string> t2 = _guestListRepository.UploadFileAsync(guestList, uniqueGuestListFilename);
             t2.Wait();
-            string pathToGuestList = t2.Result;
-            if (!string.IsNullOrEmpty(pathToGuestList))
-            {
-                e.GuestListPath = pathToGuestList;
-            }
+          
+            string guestListPath = await ((FineGrainedBucketRepository)_guestListRepository)
+                .AssignPermission(e.OrganizerEmailAddress, uniqueGuestListFilename);
 
-            _bucketRepository.AssignPermission(e.OrganizerEmailAddress, uniqueGuestListFilename);
+            e.GuestListPath = guestListPath;
 
             await _firestoreRepository.AddEventAsync(e);
 

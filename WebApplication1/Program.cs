@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using System.Text.Json;
 using WebApplication1.Models;
+using WebApplication1.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,22 +46,17 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<WebApplication1.Repositories.FirestoreRepository>(provider =>
+string projectId = builder.Configuration["ProjectId"].ToString();
+string posterBucketName = builder.Configuration["PosterBucket"].ToString();
+string guestListBucketName = builder.Configuration["GuestListBucket"].ToString();   
+
+
+builder.Services.AddKeyedScoped<IBucketRepository, UniformBucketRepository>("uniform");
+builder.Services.AddKeyedScoped<IBucketRepository, FineGrainedBucketRepository>("finegrained");
+builder.Services.AddScoped<FirestoreRepository>(provider =>
 {
-    var config = provider.GetRequiredService<IConfiguration>();
-    var projectId = config.GetValue<string>("ProjectId");
-    return new WebApplication1.Repositories.FirestoreRepository(projectId);
+    return new FirestoreRepository(projectId);
 });
-
-builder.Services.AddScoped<WebApplication1.Repositories.BucketRepository>(provider =>
-{
-    var config = provider.GetRequiredService<IConfiguration>();
-    var projectId = config.GetValue<string>("ProjectId");
-    var posterBucketName = config.GetValue<string>("PosterBucket"); 
-
-    return new WebApplication1.Repositories.BucketRepository(projectId, posterBucketName);
-});
-
 
 var app = builder.Build();
 

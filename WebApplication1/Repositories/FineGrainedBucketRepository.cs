@@ -1,18 +1,20 @@
-﻿using Google.Apis.Storage.v1.Data;
+﻿
+using Google.Apis.Storage.v1.Data;
 using Google.Cloud.Storage.V1;
-using System.Security.AccessControl;
 
 namespace WebApplication1.Repositories
 {
-    public class BucketRepository
+    public class FineGrainedBucketRepository : IBucketRepository
     {
-        private string _projectId;
-        private string _bucketName;
-        public BucketRepository(string projectId, string bucketName)
+
+        private readonly string _projectId;
+        private readonly string _bucketName;
+        public FineGrainedBucketRepository()
         {
-            _projectId = projectId;
-            _bucketName = bucketName;
+            _projectId = "swd63bpfc2026";
+            _bucketName = "swd63bpfc2026glrav1";
         }
+
         public async Task<string> UploadFileAsync(IFormFile file, string destinationPath)
         {
             var storage = StorageClient.Create();
@@ -23,10 +25,10 @@ namespace WebApplication1.Repositories
             }
         }
 
-        public string AssignPermission(string userEmail, string objectName, string role = "READER")
+        public async Task<string> AssignPermission(string userEmail, string objectName, string role = "READER")
         {
             var storage = StorageClient.Create();
-            var storageObject = storage.GetObject(_bucketName, objectName, new GetObjectOptions
+            var storageObject = await storage.GetObjectAsync(_bucketName, objectName, new GetObjectOptions
             {
                 Projection = Projection.Full
             });
@@ -37,10 +39,9 @@ namespace WebApplication1.Repositories
                 Entity = $"user-{userEmail}",
                 Role = role,
             });
-            var updatedObject = storage.UpdateObject(storageObject);
-            return updatedObject.SelfLink;
-            //https://storage.cloud.google.com/swd63bpfc2026glrav1/finegrainedtest.png
+            var updatedObject = await storage.UpdateObjectAsync(storageObject);
+            return $"https://storage.cloud.google.com/{_bucketName}/{objectName}";
+            //https://storage.cloud.google.com/swd63bpfc2026glrav1/5ebee7d9-ddb5-4f92-92d2-dfa727ce00e0.csv
         }
-
     }
 }
